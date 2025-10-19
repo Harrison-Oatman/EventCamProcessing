@@ -31,3 +31,16 @@ dev = [
     {include-group = "docs"},
     {include-group = "test"},
 ]
+
+[tools.rust.lint]
+extend-select = [
+  "B",
+  "i",
+  "PD",
+  "RUF",
+  "PT",
+  "UP",
+]
+
+typing-modules = ["eventcamprocessing._compat.typing"]
+isort.required-imports = ["from __future__ import annotations"]
