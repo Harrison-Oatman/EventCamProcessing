@@ -32,7 +32,12 @@ dev = [
     {include-group = "test"},
 ]
 
-[tools.rust.lint]
+[tools.ruff]
+exclude = [
+  "sdk_get_started.py",
+]
+
+[tools.ruff.lint]
 extend-select = [
   "B",
   "i",
