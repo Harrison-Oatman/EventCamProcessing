@@ -38,9 +38,9 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-extend-select = [
+select = [
   "B",
-  "i",
+  "I",
   "PD",
   "RUF",
   "PT",
@@ -48,4 +48,3 @@ extend-select = [
 ]
 
 typing-modules = ["eventcamprocessing._compat.typing"]
-isort.required-imports = ["from __future__ import annotations"]
