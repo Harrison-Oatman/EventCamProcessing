@@ -21,7 +21,6 @@ docs = [
     "furo>=2025.9.25",
     "myst-parser>=4.0.1",
     "sphinx-markdown-builder>=0.6.8",
-    "sphynx>=0.0.3",
 ]
 test = [
     "pytest>=8.4.2",
