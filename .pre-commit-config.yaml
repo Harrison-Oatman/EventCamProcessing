@@ -14,7 +14,9 @@ repos:
         args: ["--pytest-test-first"]
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-
+- id: check-docstring-first
+- id: check-branch-name
+-id: check-vcs-permalinks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.13.2"
     hooks:
