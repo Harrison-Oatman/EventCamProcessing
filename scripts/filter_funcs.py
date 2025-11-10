@@ -9,15 +9,10 @@ def accumulate_events(window, new_chunk, t_accum_us):
     Call inside an EventsIterator loop to shift the accumulation window forward,
     appending the new event chunk and discarding the old one.
 
-    RAW event files can be very bulky, so it's helpful for processing 
-    to load the event stream in chunks using EventsIterator. EventsIterator 
-    has an input, delta_t, which defines the discrete time window with
-    which to load events. We will also want to have a rolling (accumulation) 
-    window larger than delta_t for doing all of our analysis 
-    (filtering/clustering/tracking). Once a new iteration is started, we 
-    will want to add our new chunk of events to the accumulation window of 
-    events, while also discarding the oldest delta_t chunk of events at the 
-    tail end of the window.
+    Imports
+    -------
+        from metavision_core.event_io import EventsIterator
+        import numpy as np
 
     Parameters
     ----------
@@ -35,9 +30,21 @@ def accumulate_events(window, new_chunk, t_accum_us):
     new_window : ndarray
         Updated window of accumulated events, including new_chunk and omitting
         an equally-sized chunk at the trailing end of the window.
+    
+    Notes
+    -----
+    RAW event files can be very bulky, so it's helpful for processing 
+    to load the event stream in chunks using EventsIterator. EventsIterator 
+    has an input, delta_t, which defines the discrete time window with
+    which to load events. We will also want to have a rolling (accumulation) 
+    window larger than delta_t for doing all of our analysis 
+    (filtering/clustering/tracking). Once a new iteration is started, we 
+    will want to add our new chunk of events to the accumulation window of 
+    events, while also discarding the oldest delta_t chunk of events at the 
+    tail end of the window.
 
     Example Usage
-    --------
+    -------------
     >>> from metavision_core.event_io import EventsIterator
     >>> import numpy as np
 
@@ -82,3 +89,70 @@ def accumulate_events(window, new_chunk, t_accum_us):
 # duration for a sustained on or off event. If the function finds that a pixel sustains
 # either an on or off state for the minimum duration, the pixel should be marked to be
 # filtered out as noise.
+
+### Function 5: Opposite Polarity Filter
+def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
+    """
+    Pass events that have at least one opposite polarity neighbor nearby in space and time,
+    using a KD-tree for efficient search.
+
+    Imports
+    -------
+        from scipy.spatial import cKDTree
+        import numpy as np
+
+    Parameters
+    ----------
+    evs : np.ndarray
+        Numpy array with N-events, containing fields ['x', 'y', 't', 'p'].
+    spatial_radius : int
+        Pixel neighborhood radius to search for opposite polarity events.
+    time_scale : float
+        Scaling factor for time coordinates in the distance calculations.
+
+    Returns
+    -------
+    filtered_evs : np.ndarray
+        Filtered events containing only those with opposite polarity neighbors.
+
+    Notes
+    -----
+    The time_scale variable will likely have a large impact on the quality of
+    the distance searches. This will be a function of the particle speed, so it
+    won't be the same in every analysis. The filter could be processed with 
+    higher accuracy using cdist, but the kd-tree will help significantly with 
+    efficiency.
+    """
+
+    # sort events by polarity
+    on_events = evs[evs['p'] == 1]
+    off_events = evs[evs['p'] == -1]
+
+    # break if no opposite polarity events are found
+    if len(on_events) == 0 or len(off_events) == 0:
+        print("Found no opposite-polarity events.")
+        return np.empty(0, dtype=evs.dtype)
+
+    # build KD-tree in (x, y, t) space with scaled time coordinate
+    on_coords = np.stack([on_events['x'], on_events['y'], on_events['t']*time_scale], axis=1)
+    off_coords = np.stack([off_events['x'], off_events['y'], off_events['t']*time_scale], axis=1)
+    tree_on = cKDTree(on_coords)
+    tree_off = cKDTree(off_coords)
+
+    # search for ON events with nearby OFF events, p=2 for Euclidean distance
+    on_indices = tree_off.query_ball_point(on_coords, r=spatial_radius, p=2)
+    keep_on = np.array([len(neigh) > 0 for neigh in on_indices])
+
+    # search for OFF events with nearby ON events
+    off_indices = tree_on.query_ball_point(off_coords, r=spatial_radius, p=2)
+    keep_off = np.array([len(neigh) > 0 for neigh in off_indices])
+
+    # combine filtered ON and OFF events
+    filtered_on = on_events[keep_on]
+    filtered_off = off_events[keep_off]
+    filtered_events = np.concatenate([filtered_on, filtered_off])
+
+    # re-sort by timestamp
+    filtered_events = np.sort(filtered_events, order='t')
+
+    return filtered_events
