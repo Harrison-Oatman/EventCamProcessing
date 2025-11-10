@@ -5,7 +5,7 @@ import_drivedata.py
     and adds them to data/raw_files/.
 - Skips files that already exist locally (only downloads new .raw files).
 
-**Note: I had to make the drive folder 
+**Note: I had to make the drive folder
     publically available (with a link) to make this work
 
 To run this script:
@@ -14,6 +14,7 @@ To run this script:
 """
 
 from pathlib import Path
+
 import gdown
 
 # URL ID for the folder (after drive/folders/)
@@ -21,6 +22,7 @@ FOLDER_ID = "1uQv9_vtb6A2357m40pa7H9tvaufURm0l"
 
 # Local destination directory
 LOCAL_DIR = Path("data/raw_files")
+
 
 def download_raw_files(folder_id: str, dest: Path):
     """download new .raw files from google drive folder"""
@@ -31,16 +33,18 @@ def download_raw_files(folder_id: str, dest: Path):
 
     # gdown downloads all contents of the folder, so we'll put them in
     # a temporary directory
-    temp_dir = dest/"_temp_gdown"
+    temp_dir = dest / "_temp_gdown"
     temp_dir.mkdir(exist_ok=True)
 
     # Download folder contents
-    gdown.download_folder(id=folder_id, output=str(temp_dir), quiet=False, use_cookies=False)
+    gdown.download_folder(
+        id=folder_id, output=str(temp_dir), quiet=False, use_cookies=False
+    )
 
     # Move only .raw files that are new to data/raw_files
     count = 0
     for file in temp_dir.glob("**/*.raw"):
-        target = dest/file.name
+        target = dest / file.name
         if not target.exists():
             file.replace(target)
             count += 1
@@ -57,6 +61,7 @@ def download_raw_files(folder_id: str, dest: Path):
         print("All .raw files are already up to date!")
     else:
         print(f"Downloaded {count} new files!")
+
 
 if __name__ == "__main__":
     download_raw_files(FOLDER_ID, LOCAL_DIR)

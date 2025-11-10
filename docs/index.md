@@ -11,4 +11,3 @@ This project aims to simplify the post-processing of data collected by an event 
 :caption: Table of Contents
 
 usage
-
