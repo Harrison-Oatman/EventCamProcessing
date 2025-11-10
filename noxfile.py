@@ -1,18 +1,22 @@
 import nox
+import nox_uv
 
 nox.options.sessions = ['tests', 'docs']
+nox.options.default_venv_backend = "uv"
 
-def tests(session):
-    """Run tests using pytest"""
-    session.install('pytest')
-    session.run('pytest')
+@nox_uv.session(reuse_venv=True, uv_groups=["test"])
+def tests(session: nox.Session):
+    """Run tests using test dependency group."""
+    session.run("pytest")
 
-def docs(session):
+
+@nox_uv.session(reuse_venv=True, uv_groups=["docs"])
+def docs(session: nox.Session):
     """Build docs"""
-    session.install('sphinx', 'myst-parser', 'sphinx-markdown-builder', 'furo')
-    session.run('sphinx-build', 'docs', 'docs/_build/html')
+    session.run('sphinx-autobuild', '--open-browser', 'docs', 'docs/_build/html')
 
-def typecheck(session):
+
+@nox_uv.session(reuse_venv=True, uv_groups=["dev"])
+def typecheck(session: nox.Session):
     """Run typecheck"""
-    session.install("mypy")
     session.run("mypy", "src")
