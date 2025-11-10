@@ -9,9 +9,9 @@ author = 'Joanna Van Liew'
 extensions = [
     'sphinx.ext.autodoc',
     'myst_parser',
-    'sphinx.ext.napolean'
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinx-markdown-builder',
+    'sphinx_markdown_builder',
 ]
 
 source_suffix = {
