@@ -1,11 +1,11 @@
-### **Add to this usage.md file continuously throughout the project, and explain how to use each added function for the lists below. 
+### **Add to this usage.md file continuously throughout the project, and explain how to use each added function for the lists below.
 
 ## Input
 * Event camera video files
 
 ## Data filters
 * Low-pass filter
-* Hot-pixel filter 
+* Hot-pixel filter
 * Filter for unpaired events
 * Isolated space-time filter
 
@@ -17,6 +17,6 @@
 ## Particle tracking
 * Capture velocity data
 
-## Data Visualization 
+## Data Visualization
 * Plots
 * Animations
