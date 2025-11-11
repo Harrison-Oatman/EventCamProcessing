@@ -1,7 +1,10 @@
-'''
+"""
 This script contains 5 functions which can be used in the filtering/finding/tracking algorithm for the event camera
 Completed for the APC524 Group Assignment: Documentation of a File
-'''
+"""
+
+import numpy as np
+from scipy.spatial import KDTree
 
 ### Function 1: Shift Window
 def accumulate_events(window, new_chunk, t_accum_us):
@@ -17,7 +20,7 @@ def accumulate_events(window, new_chunk, t_accum_us):
     Parameters
     ----------
     window : np.ndarray or None
-        Numpy array of accumulated events from previous iteration of 
+        Numpy array of accumulated events from previous iteration of
         EventsIterator. If window is None, then the new chunk will initialize
         a new window.
     new_chunk : np.ndarray
@@ -30,17 +33,17 @@ def accumulate_events(window, new_chunk, t_accum_us):
     new_window : ndarray
         Updated window of accumulated events, including new_chunk and omitting
         an equally-sized chunk at the trailing end of the window.
-    
+
     Notes
     -----
-    RAW event files can be very bulky, so it's helpful for processing 
-    to load the event stream in chunks using EventsIterator. EventsIterator 
+    RAW event files can be very bulky, so it's helpful for processing
+    to load the event stream in chunks using EventsIterator. EventsIterator
     has an input, delta_t, which defines the discrete time window with
-    which to load events. We will also want to have a rolling (accumulation) 
-    window larger than delta_t for doing all of our analysis 
-    (filtering/clustering/tracking). Once a new iteration is started, we 
-    will want to add our new chunk of events to the accumulation window of 
-    events, while also discarding the oldest delta_t chunk of events at the 
+    which to load events. We will also want to have a rolling (accumulation)
+    window larger than delta_t for doing all of our analysis
+    (filtering/clustering/tracking). Once a new iteration is started, we
+    will want to add our new chunk of events to the accumulation window of
+    events, while also discarding the oldest delta_t chunk of events at the
     tail end of the window.
 
     Example Usage
@@ -69,12 +72,52 @@ def accumulate_events(window, new_chunk, t_accum_us):
 
     return new_window
 
-### Function 2: Isolated Space-Time Noise Filter
-# This should be a simple filter that checks each event in the window and determines if it
-# has significant neighbors in space and time. The inputs would likely be some spatial
-# search radius, some temporal search window, and some minimum number of neighbors. If the
-# function doesn't find enough events in the radius or window, the event should be marked
-# to be filtered out as noise.
+# function 2: Isolated Noise Filter
+def isolated_noise_filter(evs, spatial_radius=20, time_window=1000, min_neighbors=3) -> np.ndarray:
+    """
+    Filter out events that do not have a minimum number of neighboring events
+    within a specified spatial radius and time window.
+
+    Imports
+    -------
+        import numpy as np
+
+    Parameters
+    ----------
+    evs : np.ndarray
+        Numpy array with N-events, containing fields ['x', 'y', 't', 'p'].
+        todo - consider separate datatype to ensure required fields are present
+    spatial_radius : float
+        Pixel neighborhood radius to search for neighboring events.
+    time_window : float
+        Time window (in microseconds) to search for neighboring events.
+    min_neighbors : int
+        Minimum number of neighboring events required to keep an event.
+
+    Returns
+    -------
+    filtered_evs : np.ndarray
+        Filtered events containing only those with sufficient neighbors.
+
+    Notes
+    -------
+    We rescale each spatial dimension for efficiency
+    """
+
+    points = np.stack([
+        evs['x'] / spatial_radius,
+        evs['y'] / spatial_radius,
+        evs['t'] / time_window,
+    ], axis=1)
+
+    tree = KDTree(np.stack(points))
+
+    n_neighbors = tree.query_ball_point(points, r=1.0, p=np.inf, return_length=True)
+    mask = n_neighbors > min_neighbors
+
+    filtered_evs = evs[mask]
+    return filtered_evs
+
 
 def low_pass_filter(window, min_dt, min_count):
     """
@@ -206,6 +249,7 @@ def hot_pixel_filter(window, min_duration):
     mask = ~remove_mask[inverse]
     return window[mask]
 
+
 ### Function 5: Opposite Polarity Filter
 def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
     """
@@ -235,8 +279,8 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
     -----
     The time_scale variable will likely have a large impact on the quality of
     the distance searches. This will be a function of the particle speed, so it
-    won't be the same in every analysis. The filter could be processed with 
-    higher accuracy using cdist, but the kd-tree will help significantly with 
+    won't be the same in every analysis. The filter could be processed with
+    higher accuracy using cdist, but the kd-tree will help significantly with
     efficiency.
     """
 
@@ -250,10 +294,10 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
         return np.empty(0, dtype=evs.dtype)
 
     # build KD-tree in (x, y, t) space with scaled time coordinate
-    on_coords = np.stack([on_events['x'], on_events['y'], on_events['t']*time_scale], axis=1)
-    off_coords = np.stack([off_events['x'], off_events['y'], off_events['t']*time_scale], axis=1)
-    tree_on = cKDTree(on_coords)
-    tree_off = cKDTree(off_coords)
+    on_coords = np.stack([on_events['x'], on_events['y'], on_events['t'] * time_scale], axis=1)
+    off_coords = np.stack([off_events['x'], off_events['y'], off_events['t'] * time_scale], axis=1)
+    tree_on = KDTree(on_coords)
+    tree_off = KDTree(off_coords)
 
     # search for ON events with nearby OFF events, p=2 for Euclidean distance
     on_indices = tree_off.query_ball_point(on_coords, r=spatial_radius, p=2)
@@ -272,4 +316,3 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
     filtered_events = np.sort(filtered_events, order='t')
 
     return filtered_events
-
