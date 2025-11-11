@@ -11,7 +11,6 @@
 Metavision SDK Get Started.
 """
 
-
 from metavision_core.event_io import EventsIterator
 from metavision_sdk_core import PeriodicFrameGenerationAlgorithm
 from metavision_sdk_ui import EventLoop, BaseWindow, Window, UIAction, UIKeyEvent
@@ -21,19 +20,26 @@ accumulation_time_us = 10000
 
 def parse_args():
     import argparse
+
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Metavision SDK Get Started sample.',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description="Metavision SDK Get Started sample.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
-        '-i', '--input-event-file', dest='event_file_path', default="",
+        "-i",
+        "--input-event-file",
+        dest="event_file_path",
+        default="",
         help="Path to input event file (RAW or HDF5). If not specified, the camera live stream is used. "
-        "If it's a camera serial number, it will try to open that camera instead.")
+        "If it's a camera serial number, it will try to open that camera instead.",
+    )
     args = parser.parse_args()
     return args
 
 
 def main():
-    """ Main """
+    """Main"""
     args = parse_args()
 
     # Events iterator on Camera or event file
@@ -41,7 +47,13 @@ def main():
     height, width = mv_iterator.get_size()  # Camera Geometry
 
     # Window - Graphical User Interface
-    with Window(title="Metavision SDK Get Started", width=width, height=height, mode=BaseWindow.RenderMode.BGR) as window:
+    with Window(
+        title="Metavision SDK Get Started",
+        width=width,
+        height=height,
+        mode=BaseWindow.RenderMode.BGR,
+    ) as window:
+
         def keyboard_cb(key, scancode, action, mods):
             if action != UIAction.RELEASE:
                 return
@@ -51,8 +63,11 @@ def main():
         window.set_keyboard_callback(keyboard_cb)
 
         # Event Frame Generator
-        event_frame_gen = PeriodicFrameGenerationAlgorithm(sensor_width=width, sensor_height=height,
-                                                           accumulation_time_us=accumulation_time_us)
+        event_frame_gen = PeriodicFrameGenerationAlgorithm(
+            sensor_width=width,
+            sensor_height=height,
+            accumulation_time_us=accumulation_time_us,
+        )
 
         def on_cd_frame_cb(ts, cd_frame):
             window.show(cd_frame)
@@ -73,8 +88,12 @@ def main():
             if evs.size == 0:
                 print("The current event buffer is empty.")
             else:
-                min_t = evs['t'][0]   # Get the timestamp of the first event of this callback
-                max_t = evs['t'][-1]  # Get the timestamp of the last event of this callback
+                min_t = evs["t"][
+                    0
+                ]  # Get the timestamp of the first event of this callback
+                max_t = evs["t"][
+                    -1
+                ]  # Get the timestamp of the last event of this callback
                 global_max_t = max_t  # Events are ordered by timestamp, so the current last event has the highest timestamp
 
                 counter = evs.size  # Local counter
@@ -82,7 +101,9 @@ def main():
 
                 print(f"There were {counter} events in this event buffer.")
                 print(f"There were {global_counter} total events up to now.")
-                print(f"The current event buffer included events from {min_t} to {max_t} microseconds.")
+                print(
+                    f"The current event buffer included events from {min_t} to {max_t} microseconds."
+                )
                 print("----- End of the event buffer! -----")
 
             if window.should_close():
@@ -92,8 +113,12 @@ def main():
         duration_seconds = global_max_t / 1.0e6
         print(f"There were {global_counter} events in total.")
         print(f"The total duration was {duration_seconds:.2f} seconds.")
-        if duration_seconds >= 1:  # No need to print this statistics if the total duration was too short
-            print(f"There were {global_counter / duration_seconds :.2f} events per second on average.")
+        if (
+            duration_seconds >= 1
+        ):  # No need to print this statistics if the total duration was too short
+            print(
+                f"There were {global_counter / duration_seconds:.2f} events per second on average."
+            )
 
 
 if __name__ == "__main__":

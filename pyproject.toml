@@ -7,12 +7,7 @@ authors = [
     { name = "Harrison-Oatman", email = "46121828+Harrison-Oatman@users.noreply.github.com" }
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "beautifulsoup4>=4.14.2",
-    "gdown>=5.2.0",
-    "pydrive2>=1.21.3",
-    "requests>=2.32.5",
-]
+dependencies = []
 
 [project.scripts]
 eventcamprocessing = "eventcamprocessing:main"
@@ -22,17 +17,44 @@ requires = ["uv_build>=0.8.14,<0.9.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+dev-base = [
+    "gdown>=5.2.0",
+]
 docs = [
+    {include-group = "dev-base"},
     "furo>=2025.9.25",
     "myst-parser>=4.0.1",
+    "sphinx-autobuild>=2025.8.25",
     "sphinx-markdown-builder>=0.6.8",
-    "sphynx>=0.0.3",
 ]
 test = [
-    "pytest>=8.4.2",
+    {include-group = "dev-base"},
+    "pytest>=9.0.0",
 ]
 
 dev = [
     {include-group = "docs"},
     {include-group = "test"},
+    "ruff>=0.14.4",
 ]
+nox = [
+    "nox>=2025.10.16",
+    "nox-uv>=0.6.3",
+]
+
+[tool.ruff]
+exclude = [
+  "sdk_get_started.py",
+]
+
+[tool.ruff.lint]
+select = [
+  "B",
+  "I",
+  "PD",
+  "RUF",
+  "PT",
+  "UP",
+]
+
+typing-modules = ["eventcamprocessing._compat.typing"]
