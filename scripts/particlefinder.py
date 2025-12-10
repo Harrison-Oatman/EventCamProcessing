@@ -1,4 +1,5 @@
 from metavision_core.event_io import EventsIterator
+from skimage.measure import label, regionprops
 import numpy as np
 
 def ev_particlefinder(evs, min_area, h=720, w=1280):
