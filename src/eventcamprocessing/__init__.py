@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from eventcamprocessing!")
+from . import filter_funcs

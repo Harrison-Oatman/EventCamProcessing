@@ -8,6 +8,8 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "matplotlib>=3.10.7",
+    "notebook>=7.5.0",
     "scipy>=1.16.3",
 ]
 
@@ -42,6 +44,10 @@ dev = [
 nox = [
     "nox>=2025.10.16",
     "nox-uv>=0.6.3",
+]
+analysis = [
+    "pandas>=2.3.3",
+    "tifffile>=2025.10.16",
 ]
 
 [tool.ruff]
