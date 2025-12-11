@@ -6,6 +6,7 @@ Completed for the APC524 Group Assignment: Documentation of a File
 import numpy as np
 from scipy.spatial import KDTree
 
+
 ### Function 1: Shift Window
 def accumulate_events(window, new_chunk, t_accum_us):
     """
@@ -67,13 +68,18 @@ def accumulate_events(window, new_chunk, t_accum_us):
         return new_chunk
 
     combined = np.concatenate([window, new_chunk])  # add new chunk to window
-    cutoff_time = combined['t'][-1] - t_accum_us  # determine a cutoff for old events
-    new_window = combined[combined['t'] >= cutoff_time]  # throw out old events no longer in the window
+    cutoff_time = combined["t"][-1] - t_accum_us  # determine a cutoff for old events
+    new_window = combined[
+        combined["t"] >= cutoff_time
+    ]  # throw out old events no longer in the window
 
     return new_window
 
+
 # function 2: Isolated Noise Filter
-def isolated_noise_filter(evs, spatial_radius=20, time_window=1000, min_neighbors=3) -> np.ndarray:
+def isolated_noise_filter(
+    evs, spatial_radius=20, time_window=1000, min_neighbors=3
+) -> np.ndarray:
     """
     Filter out events that do not have a minimum number of neighboring events
     within a specified spatial radius and time window.
@@ -104,11 +110,14 @@ def isolated_noise_filter(evs, spatial_radius=20, time_window=1000, min_neighbor
     We rescale each spatial dimension for efficiency
     """
 
-    points = np.stack([
-        evs['x'] / spatial_radius,
-        evs['y'] / spatial_radius,
-        evs['t'] / time_window,
-    ], axis=1)
+    points = np.stack(
+        [
+            evs["x"] / spatial_radius,
+            evs["y"] / spatial_radius,
+            evs["t"] / time_window,
+        ],
+        axis=1,
+    )
 
     tree = KDTree(np.stack(points))
 
@@ -164,18 +173,18 @@ def low_pass_filter(window, min_dt, min_count):
     if len(window) == 0:
         return window
 
-    window = np.sort(window, order = 't')
-    pixel_id = window['x'].astype(np.int32) << 16 | window['y'].astype(np.int32)
+    window = np.sort(window, order="t")
+    pixel_id = window["x"].astype(np.int32) << 16 | window["y"].astype(np.int32)
     unique_pixel_id, inverse = np.unique(pixel_id, return_inverse=True)
-    remove_pixels = (np.zeros(len(unique_pixel_id), dtype=bool))
+    remove_pixels = np.zeros(len(unique_pixel_id), dtype=bool)
 
-    for i, p in enumerate(unique_pixel_id):
+    for i, _p in enumerate(unique_pixel_id):
         idx = np.where(inverse == i)[0]
 
         if len(idx) < min_count:
             continue
 
-        ts = window['t'][idx]
+        ts = window["t"][idx]
         dt = np.diff(ts)
 
         if np.mean(dt) < min_dt:
@@ -223,25 +232,25 @@ def hot_pixel_filter(window, min_duration):
     if window is None or len(window) == 0:
         return window
 
-    window = np.sort(window, order = 't')
+    window = np.sort(window, order="t")
 
-    pixel_ids = window['x'].astype(np.int32) << 16 | window['y'].astype(np.int32)
+    pixel_ids = window["x"].astype(np.int32) << 16 | window["y"].astype(np.int32)
 
     unique_pixel_id, inverse = np.unique(pixel_ids, return_inverse=True)
-    remove_mask = (np.zeros(len(unique_pixel_id), dtype=bool))
+    remove_mask = np.zeros(len(unique_pixel_id), dtype=bool)
 
     for i in range(len(unique_pixel_id)):
         idx = np.where(inverse == i)[0]
 
-        ts1 = window['t'][idx]
-        ps1 = window['p'][idx]
+        ts1 = window["t"][idx]
+        ps1 = window["p"][idx]
 
-        change_points = np.where(np.diff(ps1) != 0)[0]+1
+        change_points = np.where(np.diff(ps1) != 0)[0] + 1
         runs = np.split(ts1, change_points)
 
         for run in runs:
-            if len(run) >=2:
-                duration = run[-1]-run[0]
+            if len(run) >= 2:
+                duration = run[-1] - run[0]
                 if duration >= min_duration:
                     remove_mask[i] = True
                     break
@@ -285,8 +294,8 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
     """
 
     # sort events by polarity
-    on_events = evs[evs['p'] == 1]
-    off_events = evs[evs['p'] == -1]
+    on_events = evs[evs["p"] == 1]
+    off_events = evs[evs["p"] == -1]
 
     # break if no opposite polarity events are found
     if len(on_events) == 0 or len(off_events) == 0:
@@ -294,8 +303,12 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
         return np.empty(0, dtype=evs.dtype)
 
     # build KD-tree in (x, y, t) space with scaled time coordinate
-    on_coords = np.stack([on_events['x'], on_events['y'], on_events['t'] * time_scale], axis=1)
-    off_coords = np.stack([off_events['x'], off_events['y'], off_events['t'] * time_scale], axis=1)
+    on_coords = np.stack(
+        [on_events["x"], on_events["y"], on_events["t"] * time_scale], axis=1
+    )
+    off_coords = np.stack(
+        [off_events["x"], off_events["y"], off_events["t"] * time_scale], axis=1
+    )
     tree_on = KDTree(on_coords)
     tree_off = KDTree(off_coords)
 
@@ -313,6 +326,6 @@ def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
     filtered_events = np.concatenate([filtered_on, filtered_off])
 
     # re-sort by timestamp
-    filtered_events = np.sort(filtered_events, order='t')
+    filtered_events = np.sort(filtered_events, order="t")
 
     return filtered_events
