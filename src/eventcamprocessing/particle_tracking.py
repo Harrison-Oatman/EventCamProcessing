@@ -1,10 +1,11 @@
 import numpy as np
 
+
 def ev_particletracker(all_particles, max_disp):
     """
     Call after ev_particlefinder has detected all particles in an event
     recording and stored information in a global array. Places particles
-    in tracks based on predicted displacements, a cost function, and a 
+    in tracks based on predicted displacements, a cost function, and a
     maximum displacement criterion. Returns information about length and
     position for all tracks.
 
@@ -53,13 +54,14 @@ def ev_particletracker(all_particles, max_disp):
     # log tracks that are active
     num_active = len(ps_1)
     active = np.arange(0, num_active, 1, dtype=int)
-    print(f"(1/{len(t_)}): During times "
-          f"t = {[float(round(t_[0] / 10e6, 5)), float(round(t_[1] / 10e6, 5))]} s, "
-          f"there were {num_active} active tracks and {len(track_info)} total tracks.")
+    print(
+        f"(1/{len(t_)}): During times "
+        f"t = {[float(round(t_[0] / 10e6, 5)), float(round(t_[1] / 10e6, 5))]} s, "
+        f"there were {num_active} active tracks and {len(track_info)} total tracks."
+    )
 
     # loop over each window to track particles
     for tt in range(1, len(t_) - 1):
-
         # get current and previous locations for each active track
         current = np.zeros((num_active, 3))
         prev = np.zeros((num_active, 3))
@@ -89,31 +91,45 @@ def ev_particletracker(all_particles, max_disp):
         if len(new_ps) > 0:
             # loop over active tracks to determine costs and pairs
             for tr in range(num_active):
-                if track_info[active[tr]]["L"] > 1:  # enhance prediction if previous displacement is known
-                    all_dists = (((pos_est[tr, 0] - new_ps["x"]) / delta[tr, 0])**2
-                                + ((pos_est[tr, 1] - new_ps["y"]) / delta[tr, 1])**2
-                                + ((pos_est[tr, 2] - new_ps["t"]) / delta[tr, 2])**2)
-                    max_disp_error = np.sqrt(3)  # assuming each component above is < ~O(1) for reliable tracks
+                if (
+                    track_info[active[tr]]["L"] > 1
+                ):  # enhance prediction if previous displacement is known
+                    all_dists = (
+                        ((pos_est[tr, 0] - new_ps["x"]) / delta[tr, 0]) ** 2
+                        + ((pos_est[tr, 1] - new_ps["y"]) / delta[tr, 1]) ** 2
+                        + ((pos_est[tr, 2] - new_ps["t"]) / delta[tr, 2]) ** 2
+                    )
+                    max_disp_error = np.sqrt(
+                        3
+                    )  # assuming each component above is < ~O(1) for reliable tracks
 
                 else:  # otherwise, use a simple displacement error
-                    all_dists = (pos_est[tr, 0] - new_ps["x"])**2 + (pos_est[tr, 1] - new_ps["y"])**2
-                    max_disp_error = max_disp  # use global prescribed maximum displacement
+                    all_dists = (pos_est[tr, 0] - new_ps["x"]) ** 2 + (
+                        pos_est[tr, 1] - new_ps["y"]
+                    ) ** 2
+                    max_disp_error = (
+                        max_disp  # use global prescribed maximum displacement
+                    )
 
                 # if all distances are greater than max_disp, don't link
                 costs[tr] = min(all_dists)
-                if costs[tr] > max_disp_error ** 2:
+                if costs[tr] > max_disp_error**2:
                     continue
 
                 # if there are two particles that minimize cost, end the track
                 if len(np.where(all_dists == costs[tr])[0]) > 1:
                     continue
 
-                best_match = np.where(all_dists == costs[tr])[0][0]  # choose the best match
+                best_match = np.where(all_dists == costs[tr])[0][
+                    0
+                ]  # choose the best match
 
                 # check if this particle was claimed by another track
                 other_claims = np.where(pairs == best_match)[0]
                 if len(other_claims) > 0:
-                    if costs[other_claims[0]] > costs[tr]:  # give particle to better-fitting track
+                    if (
+                        costs[other_claims[0]] > costs[tr]
+                    ):  # give particle to better-fitting track
                         pairs[other_claims[0]] = 0
                     else:
                         continue
@@ -131,7 +147,9 @@ def ev_particletracker(all_particles, max_disp):
                     track["T"].append(float(new_ps[ind]["t"]))
 
                     paired[ind] = 1
-            active = active[pairs != 0]  # remove unpaired tracks from the list of active tracks
+            active = active[
+                pairs != 0
+            ]  # remove unpaired tracks from the list of active tracks
 
             # create new tracks with unpaired particles
             unpaired = np.where(paired == 0)[0]
@@ -162,9 +180,11 @@ def ev_particletracker(all_particles, max_disp):
             for ii in range(len(new_tracks)):
                 track_info.append(new_tracks[ii])
 
-        print(f"({tt + 1}/{len(t_)}): During times "
-              f"t = {[float(round(t_[tt] / 10e6, 5)), float(round(t_[tt + 1] / 10e6, 5))]} s, "
-              f"there were {num_active} active tracks, {len(new_tracks)} new tracks, "
-              f"and {len(track_info)} total tracks.")
-    
+        print(
+            f"({tt + 1}/{len(t_)}): During times "
+            f"t = {[float(round(t_[tt] / 10e6, 5)), float(round(t_[tt + 1] / 10e6, 5))]} s, "
+            f"there were {num_active} active tracks, {len(new_tracks)} new tracks, "
+            f"and {len(track_info)} total tracks."
+        )
+
     return track_info
