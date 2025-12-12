@@ -56,4 +56,4 @@ t_len = t_end - t_start
 t_ = np.arange(t_start, t_end + dt, dt)
 
 # track particles
-track_info = ev_particletracker(all_particles, max_disp)
+track_info = ev_particletracker(all_particles, max_disp, t_)
