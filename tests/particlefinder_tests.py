@@ -18,12 +18,9 @@ sys.modules["metavision_core"] = metavision_core
 sys.modules["metavision_core.event_io"] = event_io
 
 import numpy as np
-import scripts.particlefinder as pf
 
-from skimage.measure import label, regionprops
 
-pf.label = label
-pf.regionprops = regionprops
+from eventcamprocessing import ev_particlefinder
 
 from conftest import array_events
 
@@ -38,7 +35,7 @@ def test_ev_particlefinder_cluster():
     """
     events = [(50+i%3, 60+i//3, 1000, 1) for i in range(9)]
     arr = array_events(events)
-    particles = pf.ev_particlefinder(arr, min_area=5, h=128, w=128)
+    particles = ev_particlefinder(arr, min_area=5, h=128, w=128)
     assert len(particles) >=1
     assert 'x' in particles.dtype.names
     assert 'y' in particles.dtype.names
@@ -54,5 +51,5 @@ def test_min_area_particlefinder():
     """
     events = [(10,10,0,1), (11,10,0,1)]
     arr = array_events(events)
-    particles = pf.ev_particlefinder(arr, min_area=3, h=128, w=128)
+    particles = ev_particlefinder(arr, min_area=3, h=128, w=128)
     assert len(particles) ==0

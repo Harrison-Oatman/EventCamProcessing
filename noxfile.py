@@ -1,7 +1,7 @@
 import nox
 import nox_uv
 
-nox.options.sessions = ["tests", "docs"]
+nox.options.sessions = ["tests"]
 nox.options.default_venv_backend = "uv"
 
 

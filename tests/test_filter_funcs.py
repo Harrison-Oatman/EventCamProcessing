@@ -35,7 +35,7 @@ def test_isolated_noise_filter():
 import numpy as np
 from eventcamprocessing.filter_funcs import low_pass_filter
 from eventcamprocessing.filter_funcs import hot_pixel_filter
-from eventcamprocessing.filter_funcs import filter_opposite_polarity
+from eventcamprocessing.filter_funcs import opposite_polarity_filter
 from conftest import array_events
 
 def test_low_pass_filter_flickering():
@@ -90,7 +90,7 @@ def test_filter_opposite_polarity_keeps_pairs():
     far = (200,200,1000,-1)
 
     arr = array_events([on, off, far])
-    out = filter_opposite_polarity(arr, spatial_radius=10, time_scale=1e-3)
+    out = opposite_polarity_filter(arr, spatial_radius=10, time_scale=1e-3)
 
     assert any((out['x'] == 10) & (out['y'] == 10))
     assert any((out['x'] == 12) & (out['y'] == 11))

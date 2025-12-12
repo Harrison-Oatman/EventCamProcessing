@@ -17,15 +17,11 @@ metavision_core.event_io = event_io
 sys.modules["metavision_core"] = metavision_core
 sys.modules["metavision_core.event_io"] = event_io
 
-import scripts.particlefinder as pf
-
 from skimage.measure import label, regionprops
 
-pf.label = label
-pf.regionprops = regionprops
-
 import numpy as np
-from eventcamprocessing.filter_funcs import accumulate_events, isolated_noise_filter, filter_opposite_polarity
+from eventcamprocessing.filter_funcs import accumulate_events, isolated_noise_filter, opposite_polarity_filter
+from eventcamprocessing import ev_particlefinder
 from conftest import array_events
 
 def test_simple_pipeline():
@@ -44,8 +40,8 @@ def test_simple_pipeline():
     window = accumulate_events(window, chunk2, t_accum_us=5000)
 
     window = isolated_noise_filter(window, spatial_radius=2, time_window=1000, min_neighbors=1)
-    window = filter_opposite_polarity(window, spatial_radius=5, time_scale=1)
+    window = opposite_polarity_filter(window, spatial_radius=5, time_scale=1)
 
-    parts = pf.ev_particlefinder(window, min_area=2, h=128, w=128)
+    parts = ev_particlefinder(window, min_area=2, h=128, w=128)
 
     assert isinstance(parts, np.ndarray)
