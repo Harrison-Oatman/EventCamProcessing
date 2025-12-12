@@ -260,7 +260,7 @@ def hot_pixel_filter(window, min_duration):
 
 
 ### Function 5: Opposite Polarity Filter
-def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
+def opposite_polarity_filter(evs, spatial_radius=20, time_scale=1):
     """
     Pass events that have at least one opposite polarity neighbor nearby in space and time,
     using a KD-tree for efficient search.
