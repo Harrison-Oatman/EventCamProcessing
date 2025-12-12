@@ -1,4 +1,4 @@
-### **Add to this usage.md file continuously throughout the project, and explain how to use each added function for the lists below.
+### **Can add to this usage.md file continuously throughout the project, and explain how to use each added function for the lists below.
 
 ## Input
 * Event camera video files
