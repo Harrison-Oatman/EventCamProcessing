@@ -1,9 +1,9 @@
-#author = Joanna Van Liew
+# author = Joanna Van Liew
 
 import sys
 import types
 
-#Create a fake metavision_core package to run tests without having to download the metavision_core package on your own system"""
+# Create a fake metavision_core package to run tests without having to download the metavision_core package on your own system"""
 metavision_core = types.ModuleType("metavision_core")
 event_io = types.ModuleType("metavision_core.event_io")
 
@@ -18,11 +18,10 @@ sys.modules["metavision_core"] = metavision_core
 sys.modules["metavision_core.event_io"] = event_io
 
 import numpy as np
-
+from conftest import array_events
 
 from eventcamprocessing import ev_particlefinder
 
-from conftest import array_events
 
 def test_ev_particlefinder_cluster():
     """
@@ -33,14 +32,15 @@ def test_ev_particlefinder_cluster():
     particles are detected and the output is (x, y, t) that satisfies the minimum area requirement
     as expected.
     """
-    events = [(50+i%3, 60+i//3, 1000, 1) for i in range(9)]
+    events = [(50 + i % 3, 60 + i // 3, 1000, 1) for i in range(9)]
     arr = array_events(events)
     particles = ev_particlefinder(arr, min_area=5, h=128, w=128)
-    assert len(particles) >=1
-    assert 'x' in particles.dtype.names
-    assert 'y' in particles.dtype.names
-    assert 't' in particles.dtype.names
-    assert particles['area'][0] >=5
+    assert len(particles) >= 1
+    assert "x" in particles.dtype.names
+    assert "y" in particles.dtype.names
+    assert "t" in particles.dtype.names
+    assert particles["area"][0] >= 5
+
 
 def test_min_area_particlefinder():
     """
@@ -49,7 +49,7 @@ def test_min_area_particlefinder():
     After creating a small arbitrary cluster of events that is smaller than the minimum area,
     the particle finder code is tested to ensure that no particles are returned in this case.
     """
-    events = [(10,10,0,1), (11,10,0,1)]
+    events = [(10, 10, 0, 1), (11, 10, 0, 1)]
     arr = array_events(events)
     particles = ev_particlefinder(arr, min_area=3, h=128, w=128)
-    assert len(particles) ==0
+    assert len(particles) == 0

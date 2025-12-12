@@ -1,9 +1,9 @@
-#author = Joanna Van Liew
+# author = Joanna Van Liew
 
 import sys
 import types
 
-#Create a fake metavision_core package to run tests without having to download the metavision_core package on your own system"""
+# Create a fake metavision_core package to run tests without having to download the metavision_core package on your own system"""
 metavision_core = types.ModuleType("metavision_core")
 event_io = types.ModuleType("metavision_core.event_io")
 
@@ -17,12 +17,17 @@ metavision_core.event_io = event_io
 sys.modules["metavision_core"] = metavision_core
 sys.modules["metavision_core.event_io"] = event_io
 
+import numpy as np
+from conftest import array_events
 from skimage.measure import label, regionprops
 
-import numpy as np
-from eventcamprocessing.filter_funcs import accumulate_events, isolated_noise_filter, opposite_polarity_filter
 from eventcamprocessing import ev_particlefinder
-from conftest import array_events
+from eventcamprocessing.filter_funcs import (
+    accumulate_events,
+    isolated_noise_filter,
+    opposite_polarity_filter,
+)
+
 
 def test_simple_pipeline():
     """
@@ -39,7 +44,9 @@ def test_simple_pipeline():
     window = accumulate_events(None, chunk1, t_accum_us=5000)
     window = accumulate_events(window, chunk2, t_accum_us=5000)
 
-    window = isolated_noise_filter(window, spatial_radius=2, time_window=1000, min_neighbors=1)
+    window = isolated_noise_filter(
+        window, spatial_radius=2, time_window=1000, min_neighbors=1
+    )
     window = opposite_polarity_filter(window, spatial_radius=5, time_scale=1)
 
     parts = ev_particlefinder(window, min_area=2, h=128, w=128)

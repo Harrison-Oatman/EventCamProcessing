@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def numpify_df(events_df: pd.DataFrame):
     """
     Convert a pandas DataFrame of events to a structured NumPy array.

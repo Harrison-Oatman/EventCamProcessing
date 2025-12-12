@@ -2,12 +2,11 @@
 ### the functions to track particles in a .raw file
 
 import numpy as np
-
 from metavision_core.event_io import EventsIterator
+
+from eventcamprocessing.filter_funcs import accumulate_events
 from eventcamprocessing.particle_detection import ev_particlefinder
 from eventcamprocessing.particle_tracking import ev_particletracker
-from eventcamprocessing.filter_funcs import accumulate_events
-
 
 raw_file = "data/events_cut.raw"
 
