@@ -10,4 +10,4 @@ This project aims to simplify the post-processing of data collected by an event 
 :maxdepth: 2
 :caption: Table of Contents
 
-usage
+api

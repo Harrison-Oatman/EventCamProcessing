@@ -43,3 +43,50 @@ def collapse_2d(events: np.ndarray, shape: tuple[int, int]):
     for event in events:
         img[event["y"], event["x"]] += 1
     return img
+
+def collapse_2d_polarity(events: np.ndarray, shape: tuple[int, int]):
+    """
+    Collapse events into two 2D histograms based on x and y coordinates and polarity.
+    Returns a tuple of (positive_polarity_image, negative_polarity_image).
+    """
+    img_pos = np.zeros(shape, dtype=np.int32)
+    img_neg = np.zeros(shape, dtype=np.int32)
+    for event in events:
+        if event["p"] > 0:
+            img_pos[event["y"], event["x"]] += 1
+        else:
+            img_neg[event["y"], event["x"]] += 1
+    return img_pos, img_neg
+
+"""
+Taken directly from conftest.py in tests folder
+"""
+
+# author = Joanna Van Liew
+# helper functions to be used in tests
+
+event_dtype = np.dtype([("x", "i4"), ("y", "i4"), ("t", "i8"), ("p", "i1")])
+
+
+def make_event(x, y, t, p=1):
+    a = np.zeros(1, dtype=event_dtype)
+    a["x"][0] = x
+    a["y"][0] = y
+    a["t"][0] = t
+    a["p"][0] = p
+    return a
+
+
+def array_events(list_of_events):
+    arr = np.zeros(len(list_of_events), dtype=event_dtype)
+    for i, (x, y, t, p) in enumerate(list_of_events):
+        arr["x"][i] = x
+        arr["y"][i] = y
+        arr["t"][i] = t
+        arr["p"][i] = p
+    return arr
+
+
+def event():
+    return event_dtype
+

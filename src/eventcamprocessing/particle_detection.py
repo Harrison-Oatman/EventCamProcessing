@@ -9,12 +9,6 @@ def ev_particlefinder(evs, min_area, h=720, w=1280):
     adjacent events (by edge OR corner) are grouped together. Clusters must
     be larger than a prescribed min_area to be considered particles.
 
-    Imports
-    -------
-    from metavision_core.event_io import EventsIterator
-    from skimage.measure import label, regionprops
-    import numpy as np
-
     Parameters
     ----------
     evs : np.ndarray

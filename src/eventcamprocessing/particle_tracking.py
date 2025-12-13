@@ -13,10 +13,6 @@ def ev_particletracker(all_particles, max_disp, time_array):
     maximum displacement criterion. Returns information about length and
     position for all tracks.
 
-    Imports
-    -------
-    import numpy as np
-
     Parameters
     ----------
     all_particles : np.ndarray
