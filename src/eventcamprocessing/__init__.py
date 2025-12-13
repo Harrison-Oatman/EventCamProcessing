@@ -1,7 +1,7 @@
 __all__ = [
-    "filter_funcs",
     "ev_particlefinder",
     "ev_particletracker",
+    "filter_funcs",
 ]
 
 from . import filter_funcs

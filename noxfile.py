@@ -1,5 +1,6 @@
 import nox
 import nox_uv
+
 import eventcamprocessing
 
 nox.options.sessions = ["tests"]

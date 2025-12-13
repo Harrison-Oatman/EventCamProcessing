@@ -21,4 +21,3 @@ Particle Tracking
 
 .. automodule:: eventcamprocessing.particle_tracking
     :members:
-

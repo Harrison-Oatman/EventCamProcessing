@@ -44,6 +44,7 @@ def collapse_2d(events: np.ndarray, shape: tuple[int, int]):
         img[event["y"], event["x"]] += 1
     return img
 
+
 def collapse_2d_polarity(events: np.ndarray, shape: tuple[int, int]):
     """
     Collapse events into two 2D histograms based on x and y coordinates and polarity.
@@ -58,9 +59,8 @@ def collapse_2d_polarity(events: np.ndarray, shape: tuple[int, int]):
             img_neg[event["y"], event["x"]] += 1
     return img_pos, img_neg
 
-"""
-Taken directly from conftest.py in tests folder
-"""
+
+# below taken from conftest.py
 
 # author = Joanna Van Liew
 # helper functions to be used in tests
@@ -89,4 +89,3 @@ def array_events(list_of_events):
 
 def event():
     return event_dtype
-
