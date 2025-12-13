@@ -1,7 +1,9 @@
 import nox
 import nox_uv
 
-nox.options.sessions = ["tests", "docs"]
+import eventcamprocessing
+
+nox.options.sessions = ["tests"]
 nox.options.default_venv_backend = "uv"
 
 
@@ -14,7 +16,7 @@ def tests(session: nox.Session):
 @nox_uv.session(reuse_venv=True, uv_groups=["docs"])
 def docs(session: nox.Session):
     """Build docs"""
-    session.run("sphinx-autobuild", "--open-browser", "docs", "docs/_build/html")
+    session.run("sphinx-autobuild", "--open-browser", "docs", "docs/_build/html", "-W")
 
 
 @nox_uv.session(reuse_venv=True, uv_groups=["dev"])

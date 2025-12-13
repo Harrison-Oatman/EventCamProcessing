@@ -13,11 +13,6 @@ def accumulate_events(window, new_chunk, t_accum_us):
     Call inside an EventsIterator loop to shift the accumulation window forward,
     appending the new event chunk and discarding the old one.
 
-    Imports
-    -------
-        from metavision_core.event_io import EventsIterator
-        import numpy as np
-
     Parameters
     ----------
     window : np.ndarray or None
@@ -47,8 +42,8 @@ def accumulate_events(window, new_chunk, t_accum_us):
     events, while also discarding the oldest delta_t chunk of events at the
     tail end of the window.
 
-    Example Usage
-    -------------
+    Examples
+    --------
     >>> from metavision_core.event_io import EventsIterator
     >>> import numpy as np
 
@@ -84,15 +79,10 @@ def isolated_noise_filter(
     Filter out events that do not have a minimum number of neighboring events
     within a specified spatial radius and time window.
 
-    Imports
-    -------
-        import numpy as np
-
     Parameters
     ----------
     evs : np.ndarray
         Numpy array with N-events, containing fields ['x', 'y', 't', 'p'].
-        todo - consider separate datatype to ensure required fields are present
     spatial_radius : float
         Pixel neighborhood radius to search for neighboring events.
     time_window : float
@@ -106,7 +96,7 @@ def isolated_noise_filter(
         Filtered events containing only those with sufficient neighbors.
 
     Notes
-    -------
+    -----
     We rescale each spatial dimension for efficiency
     """
 
@@ -158,11 +148,11 @@ def low_pass_filter(window, min_dt, min_count):
 
     Returns
     -------
-    window[keep] : np.ndarray
+    filtered_evs: np.ndarray
         The event window with noisy pixels removed.
 
-    Example Usage
-    -------------
+    Examples
+    --------
     >>> import numpy as np
     >>> #Take window = accumulate_events(window, new_chunk, t_accum_us) from function 1.
     >>> min_dt = 300
@@ -218,11 +208,11 @@ def hot_pixel_filter(window, min_duration):
 
     Returns
     -------
-    window[mask] : np.ndarray
+    filtered_evs : np.ndarray
         The event window with hot pixels removed.
 
-    Example Usage
-    -------------
+    Examples
+    --------
     >>> import numpy as np
     >>> from scripts.filter_funcs import hot_pixel_filter
     >>> min_duration = 4000
@@ -260,15 +250,11 @@ def hot_pixel_filter(window, min_duration):
 
 
 ### Function 5: Opposite Polarity Filter
-def filter_opposite_polarity(evs, spatial_radius=20, time_scale=1):
+def opposite_polarity_filter(evs, spatial_radius=20, time_scale=1):
     """
     Pass events that have at least one opposite polarity neighbor nearby in space and time,
     using a KD-tree for efficient search.
 
-    Imports
-    -------
-        from scipy.spatial import cKDTree
-        import numpy as np
 
     Parameters
     ----------
